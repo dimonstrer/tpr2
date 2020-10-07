@@ -11,7 +11,8 @@ export default {
         eventById: state => id => {
             return state.events.find(x => x.index == id);
         },
-        mainEvent: state => state.events.find(x => x.parentNode == -1)
+        mainEvent: state => state.events.find(x => x.parentNode == -1),
+        mainEvents: state => state.events.filter(x=>x.isEvent)
     },
 
     mutations: {
@@ -25,7 +26,7 @@ export default {
 
         },
         REMOVE_EVENT(state, index) {
-            let event = state.events.find(x =>x.index == index);
+            let event = state.events[index];
             let parent = state.events.find(x => x.index == event.parentNode);
             if(parent){
                 let eventId = parent.childNodes.indexOf(event);

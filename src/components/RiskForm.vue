@@ -12,7 +12,7 @@
                         >
                         </el-option>
                         <el-option
-                                v-for="item in events"
+                                v-for="item in mainEvents"
                                 :key="item.index"
                                 :value="item.index"
                                 :label="item.name"
@@ -81,6 +81,7 @@
         condition;
         childNodes = [];
         isEvent;
+        combinations = [];
 
         constructor(parentNode, name, parentName, probability, cost, currentIndex, condition, isEvent) {
             this.parentNode = parentNode;
@@ -145,7 +146,7 @@
             rules(){
                 return this.isEvent ? {...this.baseRules, ...this.event} : {...this.baseRules, ...this.initEvent};
             },
-            ...mapGetters('States', ['events'])
+            ...mapGetters('States', ['events', 'mainEvents'])
         },
 
         methods: {

@@ -39,17 +39,70 @@ export default {
         }
     },
     computed: {
-        ...mapGetters('States', ['events'])
+        ...mapGetters('States', ['events','mainEvent'])
     },
     methods: {
         solve(){
-            this.check();
-        },
-        check(){
-            let mainEvent = this.$store.getters['Events/mainEvent'];
-            if(!mainEvent) {
-                alert('Начальное состояние не найдено!');
+            let isOkay = this.check();
+            if(!isOkay){
                 return;
+            }
+
+            this.findCombinations(this.mainEvent);
+        },
+
+        findCombinations(node){
+            if(node.childNodes.length>0){
+                if(node.condition == 'OR'){
+                    for(let i=0; i<node.childNodes.length; i++){
+                        this.findCombinations(node.childNodes[i]);
+                        node.childNodes[i].combinations.map(x=>node.combinations.push(x));
+                    }
+                }
+                if(node.condition == 'AND'){
+                    for(let i=0; i<1; i++){
+                        this.findCombinations(node.childNodes[0]);
+                        let combination = node.childNodes[0].combinations;
+                        for(let j=1; j<node.childNodes.length; j++){
+                            let currentCombination = [];
+                            this.findCombinations(node.childNodes[j]);
+                            node.childNodes[j].combinations.map(x => {
+                                combination.map(y=> currentCombination.push([...y, ...x]));
+                            });
+                            combination = currentCombination;
+                        }
+                        node.combinations = combination;
+                    }
+                }
+            }else{
+                node.combinations.push([node.index]);
+            }
+        },
+
+        check(){
+            if(!this.mainEvent) {
+                alert('Начальное состояние не найдено');
+                return false;
+            }
+            let isEveryEventHasFinalEvents = this.checkNode(this.mainEvent);
+            if(!isEveryEventHasFinalEvents){
+                alert('Не все события имеют инициализирующие события');
+                return false;
+            }
+            return true;
+        },
+
+        checkNode(node){
+            if(node.childNodes.length==0){
+                return !node.isEvent;
+            }else{
+                for(let j=0; j<node.childNodes.length; j++){
+                    let res = this.checkNode(node.childNodes[j]);
+                    if(!res){
+                        return false;
+                    }
+                }
+                return true;
             }
 
         },
