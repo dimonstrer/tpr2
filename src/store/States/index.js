@@ -3,7 +3,8 @@ import { SET_STATE, setState } from '@/store/helpers';
 export default {
     namespaced: true,
     state: {
-        events: []
+        events: [],
+        currentIndex: 0,
     },
 
     getters: {
@@ -12,7 +13,9 @@ export default {
             return state.events.find(x => x.index == id);
         },
         mainEvent: state => state.events.find(x => x.parentNode == -1),
-        mainEvents: state => state.events.filter(x=>x.isEvent)
+        mainEvents: state => state.events.filter(x=>x.isEvent),
+        initEvents: state => state.events.filter(x=>!x.isEvent).sort((x,y) => x.index - y.index),
+        currentIndex: state => state.currentIndex
     },
 
     mutations: {
@@ -23,20 +26,28 @@ export default {
             if(parent){
                 parent.childNodes.push(payload);
             }
-
+            state.currentIndex++;
         },
         REMOVE_EVENT(state, index) {
             let event = state.events[index];
-            let parent = state.events.find(x => x.index == event.parentNode);
-            if(parent){
-                let eventId = parent.childNodes.indexOf(event);
-                parent.childNodes.splice(eventId, 1);
+            let childNodes = state.events.filter(x=> x.parentNode == event.index);
+            for(let i=0; i<childNodes.length; i++){
+                let index = state.events.indexOf(childNodes[i]);
+                state.events.splice(index, 1);
             }
-
             state.events.splice(index,1);
         },
         CLEAR_STATE(state){
             state.events = [];
+            state.currentIndex = 0;
+        },
+        CLEAR_COMBINATIONS(state){
+            for(let i=0; i<state.events.length; i++){
+                state.events[i].combinations = [];
+            }
+        },
+        LOAD_EVENTS(state, payload){
+            state.events = payload;
         }
     },
 

@@ -109,7 +109,6 @@
                     cost: null,
                     condition: null
                 },
-                currentIndex: 0,
                 baseRules: {
                     parentNode: [
                         {required: true, message: 'Поле обязательно для заполнения'}
@@ -146,7 +145,7 @@
             rules(){
                 return this.isEvent ? {...this.baseRules, ...this.event} : {...this.baseRules, ...this.initEvent};
             },
-            ...mapGetters('States', ['events', 'mainEvents'])
+            ...mapGetters('States', ['events', 'mainEvents', 'currentIndex'])
         },
 
         methods: {
@@ -166,7 +165,7 @@
 
                 $form.validate(async valid => {
                     if (valid) {
-                        let payload = new Event(parentNode, name, parentName, probability, cost, this.currentIndex++, condition, this.isEvent);
+                        let payload = new Event(parentNode, name, parentName, probability, cost, this.currentIndex, condition, this.isEvent);
                         this.$store.commit('States/ADD_EVENT', payload);
                     }
                 });
